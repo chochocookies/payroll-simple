@@ -19,4 +19,9 @@ class Payroll extends Model
         'potongan_telat',
         'total_gaji',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

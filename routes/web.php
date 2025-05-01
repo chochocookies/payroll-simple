@@ -31,8 +31,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/payroll/overtime-late', [PayrollController::class, 'storeOvertimeLate'])->name('payroll.overtime-late');
     Route::get('/payroll/print', [PayrollController::class, 'printSlip'])->name('payroll.print');
     Route::post('/payroll/send', [PayrollController::class, 'sendSlipEmail'])->name('payroll.send');
+    Route::get('/payroll/{id}/send-email', [PayrollController::class, 'sendSlipEmail'])->name('payroll.sendEmail');
+
     //cetak payroll
     Route::get('/payroll/cetak', [PayrollController::class, 'cetak'])->name('payroll.cetak');
+    Route::get('/payroll/{id}/print', [PayrollController::class, 'printSlip'])->name('payroll.print');
+
 
 });
 

@@ -13,11 +13,11 @@
                     @if($payroll)
                         <ul class="space-y-1">
                             <div class="flex gap-4 mt-4">
-                                <a href="{{ route('payroll.print') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Cetak Slip</a>
-                                <form action="{{ route('payroll.send') }}" method="POST">
+                                <a href="{{ route('payroll.print', $payroll->id) }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Cetak Slip</a>
+                                {{-- <form action="{{ route('payroll.sendEmail', $payroll->id) }}" method="GET">
                                     @csrf
                                     <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">Kirim Slip ke Email</button>
-                                </form>
+                                </form> --}}
                             </div>
                             <li><strong>Periode:</strong> {{ $payroll->periode }}</li>
                             <li><strong>Tunjangan Transport:</strong> Rp {{ number_format($payroll->tunjangan_transport, 0, ',', '.') }}</li>

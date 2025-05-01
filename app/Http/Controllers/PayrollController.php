@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Payroll;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 class PayrollController extends Controller
@@ -115,25 +116,35 @@ class PayrollController extends Controller
     }
 
     // Cetak dan kirim PDF slip gaji ke email
-    public function cetak()
-    {
-        $user = auth()->user();
-        $payroll = Payroll::where('user_id', $user->id)->latest()->first();
+    // Method untuk cetak slip sebagai PDF (akses via route)
+public function printSlip($id)
+{
+    $payroll = Payroll::with('user')->findOrFail($id);
+    $user = $payroll->user;
 
-        if (!$payroll) {
-            return back()->with('error', 'Tidak ada data payroll.');
-        }
+    $pdf = Pdf::loadView('pdf.payroll', compact('payroll', 'user'));
 
-        $pdf = Pdf::loadView('pdf.payroll', compact('user', 'payroll'));
+    return $pdf->download('slip-gaji-' . $user->name . '.pdf');
+}
 
-        Mail::send([], [], function ($message) use ($pdf, $user, $payroll) {
-            $message->to($user->email)
-                    ->subject('Slip Gaji - ' . $payroll->periode)
-                    ->attachData($pdf->output(), 'slip-gaji.pdf');
-        });
 
-        return $pdf->download('slip-gaji.pdf');
-    }
+public function sendSlipEmail($id)
+{
+    $payroll = Payroll::findOrFail($id);
+    $user = User::findOrFail($payroll->user_id); // ambil email user dari payroll
+
+    // Generate PDF dari view
+    $pdf = Pdf::loadView('pdf.payroll', compact('user', 'payroll'));
+
+    // Kirim email ke user
+    Mail::send([], [], function ($message) use ($pdf, $user, $payroll) {
+        $message->to($user->email)
+                ->subject('Slip Gaji - ' . $payroll->periode)
+                ->attachData($pdf->output(), 'slip-gaji.pdf');
+    });
+
+    return back()->with('success', 'Slip gaji berhasil dikirim ke email: ' . $user->email);
+}
 
     // Menghitung total lembur dan potongan dari presensi
     private function calculateOvertimeAndDeductions($attendances)
